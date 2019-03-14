@@ -8,6 +8,7 @@ import os
 import logging
 import argparse
 
+from pytorch_pretrained_bert import BertConfig
 from tensorboardX import SummaryWriter
 from tqdm import tqdm, trange
 
@@ -83,7 +84,7 @@ def main():
                         type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--num_train_epochs",
-                        default=10000.0,
+                        default=1000.0,
                         type=float,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--warmup_proportion",

@@ -126,5 +126,13 @@ def convert_SASRec():
             u += 1
 
 
+def test_crossentropy():
+    loss = torch.nn.CrossEntropyLoss(ignore_index=0)
+    input = torch.FloatTensor([[0, 1, 2, 3, 4, 0], [2, 3, 4, 5, 0, 0]])
+    target = torch.LongTensor([0, 0])
+    output = loss(input, target)
+    print(output.item())
+
+
 if __name__ == "__main__":
-    convert_SASRec()
+    test_crossentropy()
