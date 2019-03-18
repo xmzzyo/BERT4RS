@@ -29,4 +29,4 @@ SeqRec为代码目录，执行`python bert_main.py`
 
 执行`tensorboard logdir=./log`查看结果
 
-[](./xmz_2019-03-18_09-26-26.png)
+![](https://github.com/xmzzyo/BERT4RS/blob/master/xmz_2019-03-18_09-26-26.png)
