@@ -28,3 +28,5 @@ next_sentence_loss = 0.0007768932
 SeqRec为代码目录，执行`python bert_main.py`
 
 执行`tensorboard logdir=./log`查看结果
+
+[](./xmz_2019-03-18_09-26-26.png)
