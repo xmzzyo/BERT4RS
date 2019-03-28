@@ -13,12 +13,13 @@
 预训练结果：
 
 ```
-global_step = 20000
-loss = 7.646792
-masked_lm_accuracy = 0.10956605
-masked_lm_loss = 7.6468687
-next_sentence_accuracy = 1.0
-next_sentence_loss = 0.0007768932
+INFO:tensorflow:***** Eval results *****
+INFO:tensorflow:  global_step = 500000
+INFO:tensorflow:  loss = 1.0931754
+INFO:tensorflow:  masked_lm_accuracy = 0.77775115
+INFO:tensorflow:  masked_lm_loss = 1.1090086
+INFO:tensorflow:  next_sentence_accuracy = 1.0
+INFO:tensorflow:  next_sentence_loss = 5.5007455e-05
 ```
 
 ### 2. Fine-tune
@@ -28,3 +29,5 @@ next_sentence_loss = 0.0007768932
 SeqRec为代码目录，执行`python bert_main.py`
 
 执行`tensorboard logdir=./log`查看结果
+
+![](https://github.com/xmzzyo/BERT4RS/blob/master/xmz_2019-03-18_09-26-26.png)
