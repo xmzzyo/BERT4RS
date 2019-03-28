@@ -51,12 +51,12 @@ def main():
                         type=str,
                         help="The input train corpus.")
     parser.add_argument("--bert_model",
-                        default='../data/Movies_and_TV_5/ckp_v1/',
+                        default='../data/Movies_and_TV_5/ckp_500000/',
                         type=str,
                         help="Bert pre-trained model selected in the list: bert-base-uncased, "
                              "bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese.")
     parser.add_argument("--output_dir",
-                        default='../data/Movies_and_TV_5/ckp_v1_1',
+                        default='../data/Movies_and_TV_5/ckp_v1.4',
                         type=str,
                         help="The output directory where the model checkpoints will be written.")
 
@@ -84,7 +84,7 @@ def main():
                         type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--num_train_epochs",
-                        default=1000.0,
+                        default=10000.0,
                         type=float,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--warmup_proportion",
@@ -192,9 +192,12 @@ def main():
     param_optimizer = list(model.named_parameters())
     no_decay = ['bias', 'LayerNorm.bias', 'LayerNorm.weight']
     optimizer_grouped_parameters = [
-        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.01},
+        {'params': [p for n, p in param_optimizer if not any(nd in n for nd in no_decay)], 'weight_decay': 0.8},
         {'params': [p for n, p in param_optimizer if any(nd in n for nd in no_decay)], 'weight_decay': 0.0}
     ]
+    l1_regularization = torch.FloatTensor(0)
+
+    l1_lambda = 0.1
     if args.fp16:
         try:
             from apex.optimizers import FP16_Optimizer
@@ -240,12 +243,16 @@ def main():
 
         for eph in trange(int(args.num_train_epochs), desc="Epoch"):
             tr_loss = 0
+            tr_auc = 0.0
             nb_tr_examples, nb_tr_steps = 0, 0
             model.train()
             for step, batch in enumerate(tqdm(train_dataloader, desc="Train Iteration")):
                 batch = tuple(t.to(device) for t in batch)
                 input_ids, pos_ids, neg_ids, input_mask = batch
-                loss = model(input_ids, pos_ids, neg_ids, input_mask, args.max_seq_length)
+                loss, auc = model(input_ids, pos_ids, neg_ids, input_mask, args.max_seq_length)
+                # for param in model.parameters():
+                #     l1_regularization += torch.norm(param, 1)
+                # loss += l1_lambda * l1_regularization
                 if n_gpu > 1:
                     loss = loss.mean()  # mean() to average on multi-gpu.
                 if args.gradient_accumulation_steps > 1:
@@ -255,6 +262,7 @@ def main():
                 else:
                     loss.backward()
                 tr_loss += loss.item()
+                tr_auc += auc.item()
                 if step % 50 == 0:
                     logger.info('loss：' + str(tr_loss / (step + 1)))
                 nb_tr_examples += input_ids.size(0)
@@ -269,6 +277,7 @@ def main():
                     optimizer.zero_grad()
                     global_step += 1
             summary_writer.add_scalar("train/loss", tr_loss / (nb_tr_steps + 1), eph + 1)
+            summary_writer.add_scalar("train/auc", tr_auc / (nb_tr_steps + 1), eph + 1)
 
             model.eval()
             NDCG = 0.0

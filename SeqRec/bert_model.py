@@ -27,6 +27,8 @@ class BertForSeqRec(BertPreTrainedModel):
         logits = self.classifier(sequence_output)
 
         if neg_ids is not None:
+            # TODO NCE loss
+
             loss = self.cross_entropy(sequence_output, pos_ids, neg_ids, input_mask, maxlen)
             return loss
         else:
@@ -35,8 +37,8 @@ class BertForSeqRec(BertPreTrainedModel):
 
     def cross_entropy(self, seq_out, pos_ids, neg_ids, mask, maxlen):
 
-        pos_emb = self.bert.embeddings(pos_ids)
-        neg_emb = self.bert.embeddings(neg_ids)
+        pos_emb = self.bert.embeddings.word_embeddings(pos_ids)
+        neg_emb = self.bert.embeddings.word_embeddings(neg_ids)
         # print("pos/neg emb shape: ", pos_emb.shape)
 
         pos = pos_emb.view(pos_emb.size(0) * maxlen, -1)
@@ -55,7 +57,9 @@ class BertForSeqRec(BertPreTrainedModel):
             - torch.log(torch.sigmoid(pos_logits) + 1e-24) * istarget -
             torch.log(1 - torch.sigmoid(neg_logits) + 1e-24) * istarget
         ) / torch.sum(istarget)
-        return loss
+
+        auc = torch.sum(((torch.sign(pos_logits - neg_logits) + 1) / 2) * istarget) / torch.sum(istarget)
+        return loss, auc
 
     def predict(self, seq_out, pos_ids, mask, maxlen):
 
@@ -68,7 +72,7 @@ class BertForSeqRec(BertPreTrainedModel):
             test_item.append(test)
         test_item = torch.LongTensor(test_item).cuda()
         # seq_emb = seq_out.view(-1, self.config.hidden_size)
-        test_item_emb = self.bert.embeddings(test_item)
+        test_item_emb = self.bert.embeddings.word_embeddings(test_item)
         test_logits = torch.matmul(seq_out, test_item_emb.transpose(1, 2))
         # print("test_logits shape: ", test_logits.shape)
         test_logits = test_logits.view(pos_ids.size(0), maxlen, self.voc_size)
