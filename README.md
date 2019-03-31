@@ -15,11 +15,11 @@
 ```
 INFO:tensorflow:***** Eval results *****
 INFO:tensorflow:  global_step = 500000
-INFO:tensorflow:  loss = 1.0931754
-INFO:tensorflow:  masked_lm_accuracy = 0.77775115
-INFO:tensorflow:  masked_lm_loss = 1.1090086
+INFO:tensorflow:  loss = 1.1401069
+INFO:tensorflow:  masked_lm_accuracy = 0.7652841
+INFO:tensorflow:  masked_lm_loss = 1.1527702
 INFO:tensorflow:  next_sentence_accuracy = 1.0
-INFO:tensorflow:  next_sentence_loss = 5.5007455e-05
+INFO:tensorflow:  next_sentence_loss = 3.410484e-05
 ```
 
 ### 2. Fine-tune
